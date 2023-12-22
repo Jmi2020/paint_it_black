@@ -1,51 +1,70 @@
-// This function will check if the color is white or a very light shade that appears white.
+// Function to check if the color is white or a very light shade.
 function isWhite(color) {
-    // Convert hex color to RGB and then check if it's white or a very light shade of gray.
-    function hexToRgb(hex) {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      } : null;
-    }
-  
-    const rgb = hexToRgb(color);
-    // Threshold can be adjusted to target shades of white more accurately.
-    const whiteThreshold = 200; // RGB values close to 255 are also considered white.
-    if (rgb && rgb.r > whiteThreshold && rgb.g > whiteThreshold && rgb.b > whiteThreshold) {
-      return true;
-    }
-    return false;
+    const rgb = color.match(/\d+/g).map(Number);
+    return rgb && rgb.length === 3 && rgb.every(c => c > 200);
   }
   
-  // This function will change all the white or near-white backgrounds to light gray.
-  function changeWhiteBackgroundsToGray() {
-    // Get all elements on the page.
-    const allElements = document.querySelectorAll('*');
-  
-    // Iterate over all elements and change the background color if it is white.
-    allElements.forEach(el => {
-      const style = window.getComputedStyle(el);
-      // Check both backgroundColor and backgroundColor (for inline styles).
-      if (isWhite(style.backgroundColor) || isWhite(el.style.backgroundColor)) {
-        el.style.backgroundColor = 'lightgray';
-        el.style.color = 'black'; // Set text color to black to ensure readability.
+  // Function to overlay a semi-transparent gray div on canvas elements.
+  function overlayCanvasElements() {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      if (!canvas.nextElementSibling || !canvas.nextElementSibling.classList.contains('canvas-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.classList.add('canvas-overlay');
+        overlay.style.position = 'absolute';
+        overlay.style.left = canvas.offsetLeft + 'px';
+        overlay.style.top = canvas.offsetTop + 'px';
+        overlay.style.width = canvas.offsetWidth + 'px';
+        overlay.style.height = canvas.offsetHeight + 'px';
+        overlay.style.backgroundColor = 'rgba(211, 211, 211, 0.5)';
+        overlay.style.pointerEvents = 'none';
+        canvas.parentNode.insertBefore(overlay, canvas.nextSibling);
       }
     });
   }
   
-  // Listen for messages from the background script
+  // Function to remove overlays from canvas elements.
+  function removeCanvasOverlays() {
+    document.querySelectorAll('.canvas-overlay').forEach(overlay => overlay.remove());
+  }
+  
+  // Function to change the background of white or near-white elements.
+  function changeWhiteBackgrounds() {
+    const allElements = document.querySelectorAll('*');
+    allElements.forEach(el => {
+      if (isWhite(window.getComputedStyle(el).backgroundColor)) {
+        el.style.backgroundColor = 'lightgray';
+        el.style.color = 'black';
+      }
+    });
+  }
+  
+  // Function to revert the background color of elements.
+  function revertBackgrounds() {
+    const allElements = document.querySelectorAll('*');
+    allElements.forEach(el => {
+      el.style.backgroundColor = '';
+      el.style.color = '';
+    });
+  }
+  
+  // Variable to track the state of the extension.
+  let isExtensionActive = false;
+  
+  // Listen for messages from the background script.
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "toggleBackground") {
-      // Execute color change on document body
-      if(document.body.style.backgroundColor === 'lightgray') {
-        document.body.style.backgroundColor = '';
-        document.body.style.color = '';
-      } else {
+      isExtensionActive = !isExtensionActive;
+      if (isExtensionActive) {
         document.body.style.backgroundColor = 'lightgray';
         document.body.style.color = 'black';
-        changeWhiteBackgroundsToGray();
+        overlayCanvasElements();
+        changeWhiteBackgrounds();
+      } else {
+        document.body.style.backgroundColor = '';
+        document.body.style.color = '';
+        removeCanvasOverlays();
+        revertBackgrounds();
       }
     }
   });
