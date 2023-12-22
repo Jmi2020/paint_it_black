@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Paint it Black",
     "version": "1.0",
-    "description": "Toggle the background color of any page to black with white text.",
+    "description": "Toggle the background color of any page to light gray",
     "icons": {
       "16": "icon16.png",
       "48": "icon48.png",
