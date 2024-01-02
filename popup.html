@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Background Changer</title>
-    <link rel="stylesheet" type="text/css" href="popup.css">
+    <title>Color Picker</title>
+    <style>
+        body {
+            width: 200px;
+            padding: 10px;
+        }
+        #colorPicker {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-    <button id="changeColor">Toggle Background</button>
+    <input type="color" id="colorPicker" value="#D3D3D3">
+    <button id="applyColor">Apply Color</button>
+    <button id="toggleExtension">Toggle Extension</button>
     <script src="popup.js"></script>
 </body>
 </html>

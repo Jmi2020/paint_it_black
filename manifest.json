@@ -1,33 +1,34 @@
 {
-    "manifest_version": 2,
-    "name": "Paint it Black",
-    "version": "1.0",
-    "description": "Toggle the background color of any page to light gray",
-    "icons": {
+  "manifest_version": 2,
+  "name": "Paint_it_Black",
+  "version": "1.0",
+  "description": "Changes the background color of web pages and follows the user across tabs.",
+  "permissions": [
+      "activeTab",
+      "storage",
+      "tabs",
+      "<all_urls>"
+  ],
+  "background": {
+      "scripts": ["background.js"],
+      "persistent": false
+  },
+  "content_scripts": [
+      {
+          "matches": ["<all_urls>"],
+          "js": ["content.js"]
+      }
+  ],
+  "browser_action": {
+      "default_icon": {
+          "16": "icon16.png",
+          "48": "icon48.png",
+          "128": "icon128.png"
+      }
+  },
+  "icons": {
       "16": "icon16.png",
       "48": "icon48.png",
       "128": "icon128.png"
-    },
-    "browser_action": {
-      "default_icon": {
-        "16": "icon16.png",
-        "48": "icon48.png",
-        "128": "icon128.png"
-      }
-    },
-    "background": {
-      "scripts": ["background.js"],
-      "persistent": false
-    },
-    "permissions": [
-      "activeTab",
-      "storage"
-    ],
-    "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["content.js"]
-      }
-    ]
   }
-  
+}
