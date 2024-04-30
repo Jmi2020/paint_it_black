@@ -1,34 +1,36 @@
 {
-  "manifest_version": 2,
-  "name": "Paint_it_Black",
-  "version": "1.0",
-  "description": "Changes the background color of web pages and follows the user across tabs.",
-  "permissions": [
-      "activeTab",
-      "storage",
-      "tabs",
-      "<all_urls>"
-  ],
-  "background": {
-      "scripts": ["background.js"],
-      "persistent": false
-  },
-  "content_scripts": [
-      {
-          "matches": ["<all_urls>"],
-          "js": ["content.js"]
-      }
-  ],
-  "browser_action": {
+    "manifest_version": 3,
+    "name": "Paint_it_Black",
+    "version": "1.2",
+    "description": "Changes the background color of web pages and follows the user across tabs.",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "action": {
       "default_icon": {
-          "16": "icon16.png",
-          "48": "icon48.png",
-          "128": "icon128.png"
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
       }
-  },
-  "icons": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
+    },
+    "background": {
+      "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ],
+    "icons": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    }
   }
-}
+  

@@ -8,7 +8,7 @@ function isWhite(color) {
 function overlayCanvasElements() {
   const canvases = document.querySelectorAll('canvas');
   canvases.forEach(canvas => {
-      if (!canvas.nextElementSibling || !canvas.nextElementSibling.classList.contains('canvas-overlay')) {
+      if (!canvas.nextElementSibling || canvas.nextElementSibling.classList.contains('canvas-overlay')) {
           const overlay = document.createElement('div');
           overlay.classList.add('canvas-overlay');
           overlay.style.position = 'absolute';
@@ -18,7 +18,7 @@ function overlayCanvasElements() {
           overlay.style.height = canvas.offsetHeight + 'px';
           overlay.style.backgroundColor = 'rgba(211, 211, 211, 0.5)';
           overlay.style.pointerEvents = 'none';
-          canvas.parentNode.insertBefore(overlay, canvas.nextSibling);
+          canvas.parentNode.insertBefore(overlay, canvas.nextElementSibling);
       }
   });
 }
@@ -39,30 +39,20 @@ function changeWhiteBackgrounds() {
   });
 }
 
-// Function to revert the background color of elements.
-function revertBackgrounds() {
-  const allElements = document.querySelectorAll('*');
-  allElements.forEach(el => {
-      el.style.backgroundColor = '';
-      el.style.color = '';
-  });
-}
-
 // Listener for messages from the background script.
 chrome.runtime.onMessage.addListener(function(request) {
-  if (request.action === "applyChanges") {
-      applyExtensionChanges(request.color);
-  } else if (request.action === "revertChanges") {
-      revertExtensionChanges();
-  }
-});
+    if (request.action == "applyChanges") {
+        applyExtensionChanges(request.color);
+    } else if (request.action == "revertChanges") {
+        revertExtensionChanges();
+    }
 
-function applyExtensionChanges(color) {
-  document.body.style.backgroundColor = color || 'lightgray';
-  document.body.style.color = 'black';
-  overlayCanvasElements();
-  changeWhiteBackgrounds();
-}
+  function applyExtensionChanges(color) {
+    document.body.style.backgroundColor = color || 'lightgray';
+    document.body.style.color = getContrastYIQ(color);
+    overlayCanvasElements();
+    changeWhiteBackgrounds();
+  }
 
 function revertExtensionChanges() {
   document.body.style.backgroundColor = '';
@@ -70,3 +60,17 @@ function revertExtensionChanges() {
   removeCanvasOverlays();
   revertBackgrounds();
 }
+
+// MutationObserver to handle dynamic content loading.
+const observer = new MutationObserver(mutations => {
+  mutations.forEach(mutation => {
+      if (mutation.addedNodes.length) {
+          overlayCanvasElements();
+          changeWhiteBackgrounds();
+      }
+  });
+});
+})
+
+// Observe dynamic content when script loaded.
+observer.observe(document.body, { childList: true, subtree: true });
